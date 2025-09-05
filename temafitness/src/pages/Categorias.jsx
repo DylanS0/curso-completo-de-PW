@@ -1,0 +1,77 @@
+import { useEffect, useState } from "react";
+import CardProductos from "../components/CardProductos";
+import WOW from 'wow.js';
+
+import { useParams } from "react-router-dom"
+const API='https://dummyjson.com/products/category/';
+const Categorias = () => {
+    const [datos, setDatos] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const params = useParams()
+    const URI=API+params.id
+    const getDatos = async () => {
+        try {
+            const response = await fetch(URI);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setDatos(data.products);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+       const wow = new WOW();
+    wow.init();
+        getDatos();
+    }, [params.id]);
+    if (loading) {
+        return (
+            <div className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+                <p>Cargando Datos...</p>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="text-center py-5 text-danger">
+                <h4>Error al cargar los datos</h4>
+                <p>{error}</p>
+            </div>
+        );
+    }
+    return (
+
+<div className="container-fluid feature bg-light py-5">
+  <div className="container py-5">
+    <div className="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style={{maxWidth: 2000}}>
+      <h3 className="text-primary animate__animated animate__backInLeft"> Lista de </h3>
+      <h1 className="display-4 mb-4 animate__animated animate__backInRight">{params.id}</h1>
+        
+
+
+        <div className="row justify-content-center">
+                {datos.map((item) => (
+                    <CardProductos key={item.id} item={item} />
+                ))}
+
+            </div>
+    </div>
+
+    
+  </div>
+</div>
+
+
+
+    )
+}
+
+export default Categorias
